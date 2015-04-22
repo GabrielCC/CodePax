@@ -38,7 +38,7 @@ class CodePax_DbVersioning_Environments_Dev extends CodePax_DbVersioning_Environ
      *
      * @return void
      * */
-    private function generateTestData()
+    public function generateTestData()
     {
         $this->sql_engine->generateTestData(CodePax_DbVersioning_Files_Manager::getTestDataFile());
         // commit the new test data
@@ -49,7 +49,6 @@ class CodePax_DbVersioning_Environments_Dev extends CodePax_DbVersioning_Environ
             $git_wrapper = new CodePax_Scm_Git(SCM_USER, SCM_PASS, REPO_URL, PROJECT_DIR);
             $git_wrapper->addAndCommit("Codepax generated test data file", DB_VERSIONING_DIR);
             $git_wrapper->push();
-            
         }
     }
 

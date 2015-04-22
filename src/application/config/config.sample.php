@@ -228,3 +228,12 @@ define('USE_TEST_DATA_COMPRESSION', false);
  * separated by ,
  * */
 define('TABLES_TO_IGNORE', '');
+
+
+/**
+ * Indicates if the automate operations on branch changes should be available
+ * The order of automate operations is:
+ *    - preserve test data on local 
+ * */
+define('AUTOMATE_OPERATIONS', false);
+

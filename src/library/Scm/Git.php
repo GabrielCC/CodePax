@@ -511,10 +511,9 @@ class CodePax_Scm_Git extends CodePax_Scm_Abstract
     public function push()
     {
         $shell_command_update = "cd {$this->project_folder} {$this->command_separator}";
-        $shell_command_update.= $this->path_to_git_bin . ' push ' . SCM_REMOTE_NAME . ' ' .$this->getCurrentPosition();
+        $shell_command_update.= $this->git_connection_string . ' push ' . SCM_REMOTE_NAME . ' ' .$this->getCurrentPosition();
         $shell_command_update.= ' ' . self::GET_RESULT_DIRECTIVE;
         $update_response = shell_exec($shell_command_update);
-        echo $update_response;
         if (is_numeric(strpos($update_response, "error: Could not"))) {
             $this->setError($update_response);
         }

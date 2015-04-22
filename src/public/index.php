@@ -27,38 +27,69 @@ $view = new CodePax_View();
 $view->setViewsPath(VIEWS_PATH);
 $view->setCurrentView('index');
 
+
 try {
     $repo_wrapper = CodePax_Scm_Factory::Factory(VERSIONING);
 
     //--- execute some action: update, switch, etc
     if (!empty($_GET)) {
         $response_string = null;
-        //--- switch to branch
-        if (isset($_GET['branch']) && strlen($_GET['branch']) > 1 && defined(
+        
+        $switch_to_branch = isset($_GET['branch']) && strlen($_GET['branch']) > 1 && defined(
                         'SWITCH_TO_BRANCH'
-                ) && SWITCH_TO_BRANCH === true
-        ) {
+                ) && SWITCH_TO_BRANCH === true;
+        $switch_to_tag = isset($_GET['tag']) && strlen($_GET['tag']) > 1 && defined('SWITCH_TO_TAG') 
+            && SWITCH_TO_TAG === true;
+        $switch_to_stable = isset($_GET['stable']) && defined('SWITCH_TO_TRUNK') && SWITCH_TO_TRUNK === true;
+        
+        
+        $automate_operations = isset($_GET['automate_operations']) && defined('AUTOMATE_OPERATIONS')
+            && AUTOMATE_OPERATIONS === true && APPLICATION_ENVIRONMENT === 'dev';
+        
+        //--- automated operations on switch to branch and staging
+        
+        if($automate_operations && ($switch_to_branch || $switch_to_stable || $switch_to_tag)) {
+            $db_versioning_handler = CodePax_DbVersioning_Environments_Factory::factory(APPLICATION_ENVIRONMENT);
+            $db_versioning_handler->generateTestData();
+        }
+        //--- switch to branch
+        if ($switch_to_branch) {
             $response_string = $repo_wrapper->switchToBranch($_GET['branch']);
         }
         //--- switch to tag
-        if (isset($_GET['tag']) && strlen($_GET['tag']) > 1 && defined('SWITCH_TO_TAG') && SWITCH_TO_TAG === true) {
+        if ($switch_to_tag) {
             $response_string = $repo_wrapper->switchToTag($_GET['tag']);
         }
         //--- switch to stable
-        if (isset($_GET['stable']) && defined('SWITCH_TO_TRUNK') && SWITCH_TO_TRUNK === true) {
+        if ($switch_to_stable) {
             $response_string = $repo_wrapper->switchToTrunk();
         }
+        
         //--- switch to revision
         if (isset($_GET['revision_no']) && defined('SWITCH_TO_REVISION') && SWITCH_TO_REVISION === true) {
             $response_string = $repo_wrapper->switchToRevision($_GET['revision_no']);
+        }
+        if($automate_operations && ($switch_to_branch || $switch_to_stable || $switch_to_tag)) {
+            // run the change scripts
+            $db_versioning_handler = CodePax_DbVersioning_Environments_Factory::factory(APPLICATION_ENVIRONMENT);
+            $db_scripts_result = $db_versioning_handler->runScripts(false);
+
+            // unset some keys that are redundant on DEV
+            unset($db_scripts_result['run_change_scripts'], $db_scripts_result['run_data_change_scripts']);
+            $view->db_scripts_result = $db_scripts_result;
+            $hooks_hanlder = new CodePax_Hooks_Handler();
+            $available_hooks = $hooks_hanlder->getList();
+            $hooks_hanlder->run($available_hooks);
+            $view->hooks_output = $hooks_hanlder->getResults();
         }
         //--- run SVN cleanup
         if (isset($_GET['svncleanup']) && VERSIONING == 'SVN') {
             $response_string = $repo_wrapper->svnCleanup();
         }
+        
 
         $view->response_string = array_filter(explode("\n", $response_string));
-
+        
         //--- recreate object with new info
         $repo_wrapper = CodePax_Scm_Factory::Factory(VERSIONING);
     }
@@ -97,6 +128,10 @@ if (defined('SWITCH_TO_TAG') && SWITCH_TO_TAG === true) {
 //--- hide "switch to revision"
 if (defined('SWITCH_TO_REVISION') && SWITCH_TO_REVISION === true) {
     $view->switch_to_revision = true;
+}
+
+if(defined('AUTOMATE_OPERATIONS') && AUTOMATE_OPERATIONS === true) {
+    $view->automate_operations = true;
 }
 
 if (VERSIONING == 'SVN' &&

@@ -10,8 +10,13 @@ function toggleMergedBranches(_object) {
 function switchTo(line, name)
 {
     //add a random number in url in order to ignore the cache
-    var numRand = Math.floor(Math.random() * 101)
-    window.location = 'index.php?' + line + '=' + name + '&rand=' + numRand;
+    var numRand = Math.floor(Math.random() * 101);
+    var automate_operations = document.getElementById('automate_operations');
+    var automated_operations_url = '';
+    if(automate_operations && automate_operations.checked) {
+        automated_operations_url = '&automate_operations=true';
+    }
+    window.location = 'index.php?' + line + '=' + name + '&rand=' + numRand + automated_operations_url;
 }
 
 function svnCleanup()

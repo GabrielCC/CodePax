@@ -57,6 +57,7 @@
                         </h2>
                     </header>
                     <div>
+                        
                         <?php if ($this->active_branches) { ?>
                             <form>
                                 <label>Active Branches:<select id="select-active-branches">
@@ -66,7 +67,16 @@
                                         <?php } ?>
                                     </select>
                                 </label>
+                                                              
                                 <input type="button" value="Switch to branch" onclick="switchTo('branch', document.getElementById('select-active-branches').value)" >
+                                 <?php if ($this->automate_operations) { ?>
+                                  <br/>
+                                <label>
+                                    AUTOMATE OPERATIONS:
+                                    <input type='checkbox' value='true' name='automate_operations' class='automated_operations_selector' checked="checked" id='automate_operations' />
+                                </label>
+                                
+                                <?php } ?> 
                             </form>
                         <?php } ?>
 
@@ -222,6 +232,36 @@
                             <?php } ?>
                         <?php } ?>
                     </ul>
+                    <?php if($this->automate_operations) { ?>
+                       
+                        <?php if ($this->db_scripts_result) { ?>
+                        <h3>Database Response</h3>
+                         <ul>
+                            <?php foreach ($this->db_scripts_result as $operation => $result) { ?>
+                                <?php $result_is_array = is_array($result); ?>
+                                <li><?php echo $operation, ': ', $result_is_array ? '' : $result; ?></li>
+                                       
+                                    <?php if (is_array($result)) { ?>
+                                        <?php foreach ($result as $version => $status) { ?>
+                                        <li>&lowast; <?php echo $version; ?>: <?php echo $status; ?></li>
+                                    <?php } ?>
+                                <?php } ?>
+                            <?php } ?>
+                         </ul>
+                        <?php } ?>
+                        
+                        <?php if($this->hooks_output) { ?>
+                            <h3>Hooks Response</h3>
+                            <ul>
+                            <?php foreach ($this->hooks_output as $hook => $output) { ?>
+                                <li><?php echo $hook; ?>: <?php echo $output; ?></li>
+                            <?php } ?>
+                            </ul>
+                        <?php } ?>
+                        <?php if ($this->error_message) { ?>
+                            <?php echo $this->error_message; ?>
+                        <?php } ?>
+                    <?php } ?>
                     <?php if ($this->working_copy_locked) : ?>
                         <input type="button" value="SVN Cleanup" onclick="svnCleanup()">
                     <?php endif ?>
