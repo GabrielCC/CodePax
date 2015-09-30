@@ -233,7 +233,10 @@ define('TABLES_TO_IGNORE', '');
 /**
  * Indicates if the automate operations on branch changes should be available
  * The order of automate operations is:
- *    - preserve test data on local 
+ *    - preserve test data on current branch
+ *    - switch the branch
+ *    - run database changescripts
+ *    - run all hooks
  * */
 define('AUTOMATE_OPERATIONS', false);
 

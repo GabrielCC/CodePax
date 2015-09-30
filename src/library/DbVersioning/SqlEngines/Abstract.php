@@ -135,7 +135,7 @@ abstract class CodePax_DbVersioning_SqlEngines_Abstract
         }
 
         if ($this->isError($command_result) === true) {
-            throw new CodePax_DbVersioning_Exception($command_result);
+            throw new CodePax_DbVersioning_Exception($command_result . 'shell command is: '. $_shell_command);
         }
     }
 
