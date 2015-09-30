@@ -59,9 +59,10 @@ class CodePax_DbVersioning_SqlEngines_MySql extends CodePax_DbVersioning_SqlEngi
         // first drop the existing DB
         $drop_shell_command = sprintf($drop_command_pattern, PATH_TO_SQL_BIN, DB_USER, DB_PASS, DB_HOST, DB_NAME);
         $this->runCommand($drop_shell_command);
-
+        echo $drop_shell_command . '</br>';
         // then recreate it from baseline
         $create_shell_command = sprintf($create_command_pattern, PATH_TO_SQL_BIN, DB_USER, DB_PASS, DB_HOST, DB_NAME);
+        echo $create_shell_command . '</br>';
         $this->runCommand($create_shell_command);
     }
 
@@ -143,5 +144,4 @@ class CodePax_DbVersioning_SqlEngines_MySql extends CodePax_DbVersioning_SqlEngi
     {
         $this->executeChangeScript($_sql_file);
     }
-
 }
